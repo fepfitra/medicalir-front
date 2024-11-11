@@ -5,27 +5,27 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
 
-# Load the dataset and pre-trained TF-IDF vector space
 df = pd.read_csv("./dataset-indo.csv")
 
-with open('tfidf_vectorizer.pkl', 'rb') as f:
+with open("tfidf_vectorizer.pkl", "rb") as f:
     tfidf_vectorizer = pickle.load(f)
 
-with open('tfidf_matrix.pkl', 'rb') as f:
+with open("tfidf_matrix.pkl", "rb") as f:
     tfidf_matrix = pickle.load(f)
 
-# Flask app setup
 app = Flask(__name__)
+
 
 def tfidfcosine(query):
     query_tfidf = tfidf_vectorizer.transform([query])
     cosine_sim_scores = cosine_similarity(query_tfidf, tfidf_matrix).flatten()
     return cosine_sim_scores
 
-@app.route('/query', methods=['POST'])
+
+@app.route("/query", methods=["POST"])
 def query_documents():
     data = request.json
-    query = data.get('query', '')
+    query = data.get("query", "")
 
     if not query:
         return jsonify({"error": "Query is required"}), 400
@@ -39,11 +39,12 @@ def query_documents():
             "index": int(idx),
             "title": df.iloc[idx, 2],
             "score": float(cosine_sim_scores[idx]),
-            "content": df.iloc[idx]['cleaned_content']
+            "content": df.iloc[idx]["cleaned_content"],
         }
         results.append(result)
 
     return jsonify(results)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)
