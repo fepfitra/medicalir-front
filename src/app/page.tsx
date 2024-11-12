@@ -2,10 +2,11 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { Search, Mic } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, Heart, AlertTriangle, User, Pill } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-export default function SearchUI() {
+export default function MedicalSearchUI() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +32,6 @@ export default function SearchUI() {
       setResults(data);
     } catch (error) {
       console.error("Search error:", error);
-      // You might want to show an error message to the user here
     } finally {
       setIsLoading(false);
     }
@@ -43,15 +43,28 @@ export default function SearchUI() {
     }
   };
 
+  const getRiskLevelColor = (level) => {
+    const level_lower = level.toLowerCase();
+    if (level_lower.includes("tinggi")) return "bg-red-500";
+    if (level_lower.includes("sedang")) return "bg-yellow-500";
+    if (level_lower.includes("rendah")) return "bg-green-500";
+    return "bg-blue-500";
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Search Container */}
-      <div className="container mx-auto pt-32 px-4">
-        {/* Logo */}
+      <div className="container mx-auto pt-8 px-4">
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Search Engine
-          </h1>
+          <div className="flex items-center justify-center mb-4">
+            <Heart className="h-8 w-8 text-red-500 mr-2" />
+            <h1 className="text-4xl font-bold text-primary">
+              Medical Information System
+            </h1>
+          </div>
+          <p className="text-muted-foreground">
+            Search for diseases, symptoms, treatments, and medical specialists
+          </p>
         </div>
 
         {/* Search Bar */}
@@ -60,22 +73,15 @@ export default function SearchUI() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                className="pl-10 pr-12 py-6 rounded-full border-2 focus-visible:ring-2"
-                placeholder="Search anything..."
+                className="pl-10 py-6 rounded-lg border-2"
+                placeholder="Search for diseases, symptoms, or treatments..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
               />
-              <Button
-                size="icon"
-                variant="ghost"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2"
-              >
-                <Mic className="h-4 w-4" />
-              </Button>
             </div>
             <Button
-              className="rounded-full px-6 py-6"
+              className="px-6 py-6"
               onClick={handleSearch}
               disabled={isLoading}
             >
@@ -85,25 +91,50 @@ export default function SearchUI() {
         </div>
 
         {/* Search Results */}
-        <div className="max-w-2xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-4">
           {results.map((result, index) => (
-            <Card
-              key={index}
-              className="p-4 hover:bg-accent cursor-pointer transition-colors"
-            >
-              <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">
-                  Score: {result.score.toFixed(4)}
+            <Card key={index} className="overflow-hidden">
+              <CardHeader className="bg-primary/5">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl text-primary">
+                    {result.disease}
+                  </CardTitle>
+                  <Badge
+                    className={`${getRiskLevelColor(result.risk_level)} text-white`}
+                  >
+                    Risk Level: {result.risk_level}
+                  </Badge>
                 </div>
-                <CardTitle className="text-blue-600 hover:underline">
-                  {result.title}
-                </CardTitle>
-                <CardDescription>
-                  {result.content.length > 200
-                    ? `${result.content.substring(0, 200)}...`
-                    : result.content}
-                </CardDescription>
-              </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-5 w-5 text-yellow-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold">Symptoms:</h3>
+                      <p className="text-muted-foreground">{result.symptoms}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <Pill className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold">Treatment:</h3>
+                      <p className="text-muted-foreground">
+                        {result.treatment}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <User className="h-5 w-5 text-blue-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold">Specialist:</h3>
+                      <p className="text-muted-foreground">{result.doctor}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
           ))}
         </div>

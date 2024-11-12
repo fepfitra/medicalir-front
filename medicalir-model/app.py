@@ -36,17 +36,19 @@ def query_documents():
 
     results = []
     for idx in top_cosine_indices:
-        result = {
-            "index": int(idx),
-            "content": df.iloc[idx, 2],
-            "score": float(cosine_sim_scores[idx]),
-            "title": df.iloc[idx]["penyakit"],
-        }
-        results.append(result)
+        results.append(
+            {
+                "disease": df.iloc[idx]["penyakit"],
+                "symptoms": df.iloc[idx]["gejala"],
+                "treatment": df.iloc[idx]["penyembuhan"],
+                "doctor": df.iloc[idx]["dokter"],
+                "risk_level": df.iloc[idx]["tingkat risiko"],
+                "score": float(cosine_sim_scores[idx]),
+            }
+        )
 
     return jsonify(results)
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
