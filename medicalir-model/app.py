@@ -1,11 +1,11 @@
-# query.py
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
 
-df = pd.read_csv("./dataset-indo.csv")
+df = pd.read_csv("./dataset-cleaned.csv")
 
 with open("tfidf_vectorizer.pkl", "rb") as f:
     tfidf_vectorizer = pickle.load(f)
@@ -14,6 +14,7 @@ with open("tfidf_matrix.pkl", "rb") as f:
     tfidf_matrix = pickle.load(f)
 
 app = Flask(__name__)
+CORS(app)
 
 
 def tfidfcosine(query):
@@ -37,9 +38,9 @@ def query_documents():
     for idx in top_cosine_indices:
         result = {
             "index": int(idx),
-            "title": df.iloc[idx, 2],
+            "content": df.iloc[idx, 2],
             "score": float(cosine_sim_scores[idx]),
-            "content": df.iloc[idx]["cleaned_content"],
+            "title": df.iloc[idx]["penyakit"],
         }
         results.append(result)
 
@@ -48,3 +49,4 @@ def query_documents():
 
 if __name__ == "__main__":
     app.run(debug=True)
+

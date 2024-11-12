@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import re
 import pickle
 
-df = pd.read_csv("./dataset-indo.csv")
+df = pd.read_csv("./dataset-cleaned.csv")
 
 
 def clean_text(text):
@@ -26,3 +26,4 @@ with open("tfidf_matrix.pkl", "wb") as f:
     pickle.dump(tfidf_matrix, f)
 
 print("Indexing completed and files saved.")
+df.to_csv("./dataset-cleaned.csv")
